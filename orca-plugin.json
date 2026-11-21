@@ -3,7 +3,7 @@
   "id": "talkback",
   "publisher": "callumjmac",
   "name": "Talkback",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hear your coding agents talk back. Forwards workspace focus and agent status to the local orca-talkback daemon, which speaks a short summary of each finished reply.",
   "license": "Apache-2.0",
   "repository": "https://github.com/CallumJMac/orca-talkback-plugin",
@@ -19,6 +19,9 @@
     },
     {
       "kind": "agent:read"
+    },
+    {
+      "kind": "storage:own"
     }
   ],
   "contributes": {
@@ -28,6 +31,25 @@
       },
       {
         "on": "agent.status.changed"
+      }
+    ],
+    "commands": [
+      {
+        "id": "talkback.toggleHere",
+        "title": "Talkback: Toggle for this workspace"
+      },
+      {
+        "id": "talkback.toggleEverywhere",
+        "title": "Talkback: Toggle everywhere"
+      }
+    ],
+    "statusBarItems": [
+      {
+        "id": "talkback",
+        "text": "\ud83d\udd0a Talkback",
+        "tone": "success",
+        "tooltip": "Click to mute the workspace on screen.",
+        "command": "talkback.toggleHere"
       }
     ]
   }

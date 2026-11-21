@@ -24,12 +24,20 @@ orca plugin install CallumJMac/orca-talkback-plugin --approve ap1-<fingerprint O
 
 It is also submitted to Orca's community catalog; once listed, you can install **Talkback** from **Settings, Plugins** after adding the community marketplace (`https://github.com/stablyai/orca-community-plugins.git`, ref `main`).
 
+## Turn it on and off per session
+
+- **Status bar:** the **🔊 Talkback** item shows whether the workspace on screen speaks. Click it to mute or unmute that workspace; it turns to **🔇 Talkback** when muted.
+- **Command palette:** **Talkback: Toggle for this workspace** does the same, and **Talkback: Toggle everywhere** mutes every workspace at once (the status bar then reads **🔇 Talkback off**). Bind either to a shortcut in Orca's keyboard settings.
+
+Each Orca chat is its own workspace, so muting a chat mutes just that chat. "The workspace on screen" means the one picked in the sidebar or the chat you last sent a prompt to, the same rule the daemon uses. Muting something that is speaking stops it at once, and your choices are remembered across restarts.
+
 ## What it can access
 
 | Capability | Why |
 |---|---|
 | `workspace:read` | To know which workspace is on screen (`workspace.changed`) |
 | `agent:read` | To know when an agent starts or finishes (`agent.status.changed`) |
+| `storage:own` | To remember which workspaces you muted, in the plugin's own storage |
 
 It forwards those two events, unchanged and in order, to `http://127.0.0.1:47823` on your own machine. It sends nothing anywhere else, reads no files and runs no commands. If the daemon is not running, it logs that at most once a minute and Orca carries on as normal.
 
