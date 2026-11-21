@@ -16,13 +16,13 @@ This plugin tells the local [orca-talkback](https://github.com/CallumJMac/orca-t
 
 ## Install
 
-In Orca, open **Settings, Plugins**, add the community marketplace (`https://github.com/stablyai/orca-community-plugins.git`, ref `main`) and install **Talkback**. Or from a terminal:
-
 ```bash
 orca plugin install CallumJMac/orca-talkback-plugin
 # Orca prints a fingerprint for the access below; approve exactly that:
 orca plugin install CallumJMac/orca-talkback-plugin --approve ap1-<fingerprint Orca printed>
 ```
+
+It is also submitted to Orca's community catalog; once listed, you can install **Talkback** from **Settings, Plugins** after adding the community marketplace (`https://github.com/stablyai/orca-community-plugins.git`, ref `main`).
 
 ## What it can access
 
