@@ -2,10 +2,32 @@
   "manifestVersion": 2,
   "id": "talkback",
   "name": "Talkback",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Hear your coding agents talk back. Forwards workspace focus and agent status to the local orca-talkback daemon, which speaks a short summary of each finished reply.",
   "license": "Apache-2.0",
   "repository": "https://github.com/CallumJMac/orca-talkback-plugin",
+  "icon": "images/icon.png",
+  "cover": {
+    "path": "images/cover.png",
+    "alt": "Talkback for Orca: hear your coding agents talk back. A short spoken summary of every finished reply, voiced locally on your Mac."
+  },
+  "screenshots": [
+    {
+      "path": "images/screenshot-how-it-works.png",
+      "alt": "Diagram of how the Talkback plugin, the Claude Code hook and the local orca-talkback daemon fit together.",
+      "caption": "The plugin tells the local daemon what is on screen and when agents finish."
+    },
+    {
+      "path": "images/screenshot-first-word.png",
+      "alt": "Bar chart: the first spoken word arrives about 0.8 seconds after the agent finishes.",
+      "caption": "The first word in under a second, all on device."
+    },
+    {
+      "path": "images/screenshot-echo.png",
+      "alt": "Line chart: echo cancellation makes the agent's own voice a median 26 dB quieter at the microphone.",
+      "caption": "Talk over it to stop it: its own voice is cancelled."
+    }
+  ],
   "engines": {
     "orca": ">=1.4.248"
   },
@@ -45,7 +67,7 @@
     "statusBarItems": [
       {
         "id": "talkback",
-        "text": "\ud83d\udd0a Talkback",
+        "text": "🔊 Talkback",
         "tone": "success",
         "tooltip": "Click to mute the workspace on screen.",
         "command": "talkback.toggleHere"
