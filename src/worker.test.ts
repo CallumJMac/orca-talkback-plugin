@@ -16,6 +16,8 @@ function captureFetch(
   let calls = 0
   let slowFocusPending = options.slowFirstFocusMs !== undefined
   globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    // Mute-settings sync is covered in toggle.test.ts; these tests are about focus and status order.
+    if (String(url).endsWith('/mutes')) return new Response(null, { status: 200 })
     calls += 1
     attempted.push({ url: String(url), body: JSON.parse(String(init?.body)) })
     if (slowFocusPending && String(url).endsWith('/focus')) {

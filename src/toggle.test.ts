@@ -104,7 +104,7 @@ test('turning Talkback off everywhere stops playback and forwards nothing', asyn
     paths.length = 0
     await worker.emit('workspace.changed', focusOn('workspace-2', 'Other'))
     await worker.emit('agent.status.changed', status('workspace-2', 'pane-2', 'done'))
-    assert.deepEqual(paths, [])
+    assert.deepEqual(paths.filter((path) => path !== '/mutes'), [])
     assert.match(lastStatusBar(worker)?.text ?? '', /off/)
     await worker.command('talkback.toggleEverywhere')
     assert.equal(worker.host.data().storage.off, false)
@@ -123,6 +123,47 @@ test('mutes are remembered across restarts', async () => {
     await worker.emit('agent.status.changed', status('workspace-1', 'pane-1', 'done'))
     assert.ok(!paths.includes('/status'))
     assert.match(lastStatusBar(worker)?.text ?? '', /🔇/)
+    await worker.deactivate()
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
+function captureBodies(): Array<{ path: string; body: unknown }> {
+  const requests: Array<{ path: string; body: unknown }> = []
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    requests.push({ path: new URL(String(url)).pathname, body: JSON.parse(String(init?.body)) })
+    return new Response(null, { status: 200 })
+  }) as typeof fetch
+  return requests
+}
+
+test('mute settings are sent to the daemon so agents know to write for speaking or reading', async () => {
+  const requests = captureBodies()
+  try {
+    const worker = await mountWorker(main)
+    await worker.emit('workspace.changed', focusOn('workspace-1', 'Demo'))
+    await worker.command('talkback.toggleHere')
+    const mutes = requests.filter((request) => request.path === '/mutes')
+    assert.deepEqual(mutes[mutes.length - 1]?.body, { muted: ['workspace-1'], off: false })
+    await worker.command('talkback.toggleEverywhere')
+    const latest = requests.filter((request) => request.path === '/mutes')
+    assert.deepEqual(latest[latest.length - 1]?.body, { muted: ['workspace-1'], off: true })
+    await worker.deactivate()
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
+test('mute settings reach a restarted daemon with the next event, even while off', async () => {
+  const requests = captureBodies()
+  try {
+    const worker = await mountWorker(main, { host: mockHost({ storage: { off: true } }) })
+    requests.length = 0
+    await worker.emit('agent.status.changed', status('workspace-1', 'pane-1', 'done'))
+    assert.ok(!requests.some((request) => request.path === '/focus' || request.path === '/status'))
+    assert.ok(requests.some((request) => request.path === '/mutes'))
+    assert.ok(requests.every((request) => JSON.stringify(request.body) === JSON.stringify({ muted: [], off: true })))
     await worker.deactivate()
   } finally {
     globalThis.fetch = originalFetch

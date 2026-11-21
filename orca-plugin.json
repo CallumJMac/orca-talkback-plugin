@@ -3,7 +3,7 @@
   "id": "talkback",
   "publisher": "callumjmac",
   "name": "Talkback",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Hear your coding agents talk back. Forwards workspace focus and agent status to the local orca-talkback daemon, which speaks a short summary of each finished reply.",
   "license": "Apache-2.0",
   "repository": "https://github.com/CallumJMac/orca-talkback-plugin",

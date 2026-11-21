@@ -27,6 +27,7 @@ export default function activate(orca: OrcaWorkerApi) {
     const storedMuted = await orca.storage.get('muted')
     muted = new Set(Array.isArray(storedMuted) ? storedMuted.filter((id): id is string => typeof id === 'string') : [])
     offEverywhere = (await orca.storage.get('off')) === true
+    void sendMutes()
     await refreshStatusBar()
   }
 
@@ -61,6 +62,11 @@ export default function activate(orca: OrcaWorkerApi) {
     const delivery = deliveryChain.then(() => forward(path, payload))
     deliveryChain = delivery.catch(() => undefined)
     return delivery
+  }
+
+  function sendMutes(): Promise<boolean> {
+    // The daemon tells the Claude Code hook whether each session should write a hidden spoken line.
+    return enqueue('/mutes', { muted: [...muted], off: offEverywhere })
   }
 
   function isMuted(ids: Array<string | null | undefined>): boolean {
@@ -98,6 +104,7 @@ export default function activate(orca: OrcaWorkerApi) {
       for (const id of target.ids) muted.delete(id)
     }
     await orca.storage.set('muted', [...muted])
+    void sendMutes()
     await refreshStatusBar()
     return nowMuted ? `Talkback muted for ${target.name}.` : `Talkback unmuted for ${target.name}.`
   })
@@ -107,6 +114,7 @@ export default function activate(orca: OrcaWorkerApi) {
     offEverywhere = !offEverywhere
     if (offEverywhere) void enqueue('/stop', {})
     await orca.storage.set('off', offEverywhere)
+    void sendMutes()
     await refreshStatusBar()
     return offEverywhere ? 'Talkback is off everywhere.' : 'Talkback is on.'
   })
@@ -131,8 +139,9 @@ export default function activate(orca: OrcaWorkerApi) {
       target = { ids, name: event.title || 'this chat' }
       await refreshStatusBar()
     }
+    // Re-sending unchanged settings and focus is a no-op on the daemon, and it survives daemon restarts.
+    void sendMutes()
     if (offEverywhere || isMuted([event.workspaceId, event.workspaceListId])) return
-    // Re-sending an unchanged focus is a no-op on the daemon, and it survives daemon restarts.
     if (lastFocusPayload !== undefined) {
       void enqueue('/focus', lastFocusPayload)
     }
